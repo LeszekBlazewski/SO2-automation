@@ -4,9 +4,17 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 ## TO DO
 
+### Production
+
 1. Add reverse proxy in front of the containers to easily access given services on user friendly URLS. (caddy could be nice if letsencrypt (SWAG) will not work correctly for localhost)
 
 2. On Deploy use SWAG (lets encrypt) which has certbot onboard which will take care of automatic cert renewal and will provide SSL for all the urls + implement basic auth for access with secure credentials.
+
+### Check
+
+1. Check if gerrit webhooks are working correctly with Jenkins (new patchest triggers jenkins job)
+
+2. Check if after uploading credentials for gerrit user in Jenkins, Jenkins is able to post messages to gerrit after build have sucessfully finished.
 
 # Configuration section to automate everthing
 
@@ -16,7 +24,7 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 - docker-workflow (for docker inside pipeline)
 - workflow-aggregator (for pipelines support)
-- gerrit-code-review (new version of gerrit trigger)
+- gerrit-code-review (better alternative to gerrit trigger)
 
 ### 2.Add preconfigured multibranch pipeline to Jenkins which will have all settings setup to fetch changes by SCM from gerrit repo:
 
@@ -24,7 +32,7 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 - If not possible configure one Job which will listen for changes from the main repo.
 
-### 3. Automatically add admin persmissions (gerrit user) to Jenkins (need to be fetched from gerrit)
+### 3. Automatically add admin persmissions (gerrit user) to Jenkins (need to be fetched from gerrit) [Would be nice if security credentials could be stored in JCasC config but they need to be retrieved from Gerrit by using REST API] -> this should allow jenkins job builds to post success/error messages to gerrit.
 
 ## Gerrit configuration:
 
