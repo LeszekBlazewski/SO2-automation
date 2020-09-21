@@ -1,0 +1,14 @@
+# Ignore everthing from docker volumes 
+gerrit/**
+
+# Except docker volume root folders
+
+!gerrit/cache
+!gerrit/db
+!gerrit/git
+!gerrit/index/
+!gerrit/etc/
+
+# Except defined config files
+
+!gerrit/etc/gerrit.config

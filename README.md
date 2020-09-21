@@ -15,12 +15,12 @@ Beachlor thesis on Wrocław University of Science and Technology
 ### 1.Install all the necessary plugins (durning Dockerfile build from plugins.txt):
 
 - docker-workflow (for docker inside pipeline)
-- workflow-aggregator (for docker inside pipeline)
+- workflow-aggregator (for pipelines support)
 - gerrit-code-review (new version of gerrit trigger)
 
 ### 2.Add preconfigured multibranch pipeline to Jenkins which will have all settings setup to fetch changes by SCM from gerrit repo:
 
-- It would be nice if Jenkins would add a multibranch project per repo automatically when new repo is created in gerrit. (JCaC maybe ?)
+- It would be nice if Jenkins would add a multibranch project per repo automatically when new repo is created in gerrit. (JCasC maybe ?)
 
 - If not possible configure one Job which will listen for changes from the main repo.
 
@@ -30,7 +30,7 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 ### 1.For PoC use become user to not use authentication.
 
-### 2.Durning setup automate the install of gerrit webhooks plugin (also configuration file for jenkins server is needed)
+### 2.Durning setup automate the install of gerrit webhooks plugin (also configuration file for jenkins server is needed) -> plugin is installed automatically when using official gerrit docker image.
 
 ### 3. Automatically upload the SSH key to gerrit in order to make SSH work for the commit hook which adds ID.
 
