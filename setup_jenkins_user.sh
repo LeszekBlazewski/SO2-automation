@@ -10,7 +10,9 @@ if ! id "$username" &> /dev/null; then
 fi
 
 # Add proper docker permissions for jenkins user
-sudo usermod -aG docker jenkins
+if ! id -nG "$username" | grep -qw docker; then
+    sudo usermod -aG docker jenkins
+fi
 
 # Save jenkins UID and docker group GID to .env
 jenkins_uid=$(id -u jenkins)
