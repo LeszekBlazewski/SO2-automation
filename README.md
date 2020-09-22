@@ -2,6 +2,12 @@
 
 Beachlor thesis on Wrocław University of Science and Technology
 
+## Run
+
+```bash
+./setup_jenkins_user.sh
+```
+
 ## TO DO
 
 ### Production
