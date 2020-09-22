@@ -10,6 +10,14 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 ## TO DO
 
+### Now
+
+0. CHECK IF MOVING TO OUTISE MAIN GIT REPO THE SCRIPT WOULD WORK
+
+1. Fix setup_gerrit_repo.sh to use ssh and make sure that the whole script works with webhook configuration
+
+2. Try to make preconfigured jenkins job which will have all the necessary permissions (mulitbranch pipeline with gerrit source and credentials for admin used in gerrit)
+
 ### Production
 
 1. Add reverse proxy in front of the containers to easily access given services on user friendly URLS. (caddy could be nice if letsencrypt (SWAG) will not work correctly for localhost)

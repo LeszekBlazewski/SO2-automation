@@ -2,6 +2,9 @@
 
 set -e
 
+# Creates jenkins user and adds him to docker group on host system in order
+# to allow jenkins spawning sibling containers in his jobs
+
 username="jenkins"
 
 # Create jenkins user if he does not exist already

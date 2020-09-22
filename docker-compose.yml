@@ -28,7 +28,7 @@ services:
       - 8080
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
-      JENKINS_OPTS: --argumentsRealm.roles.admin=admin --argumentsRealm.roles.user=${USERNAME:-admin} --argumentsRealm.passwd.admin=${PASSWORD:-admin}
+      JENKINS_OPTS: --argumentsRealm.roles.admin=admin --argumentsRealm.roles.user=${JENKINS_USERNAME:-admin} --argumentsRealm.passwd.admin=${JENKINS_PASSWORD:-admin}
     volumes:
       - jenkins-volume:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
