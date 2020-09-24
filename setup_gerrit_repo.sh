@@ -10,9 +10,9 @@ source .env
 
 gerrit_username=${GERRIT_USERNAME:-admin}
 gerrit_user_password=${GERRIT_USER_HTTP_PASSWORD}
+gerrit_user_email=${GERRIT_USER_EMAIL:-"admin@example.com"}
 gerrit_url=${GERRIT_CANONICAL_WEB_URL:-http://localhost:8080}
 gerrit_domain="${gerrit_url#*//}"
-gerrit_authorized_url=http://"${gerrit_username}:${gerrit_user_password}@${gerrit_domain}/a"
 gerrit_project_name=${GERRIT_PROJECT_NAME:-gerrit-jenkins-test}
 
 # Check if http password is provided to script
@@ -43,15 +43,14 @@ fi
 
 fi
 
-# 2. Upload new SSH key for administrator for easier management
-
-
+# 2. Http url with gerrit user credentials
+gerrit_authorized_url=http://"${gerrit_username}:${gerrit_user_password}@${gerrit_domain}/a"
 
 # 3. Create new gerrit repository
 
 curl --header "Content-Type: application/json" \
     --request PUT \
-    --data '{"description":"Sample project for Jenkins<->gerrit integration"}' \
+    --data '{"description":"Sample project for Jenkins<->gerrit integration","create_empty_commit":true}' \
     "${gerrit_authorized_url}/projects/${gerrit_project_name}"
 
 # 4. Clone new repo to host system with commit-msg hook
@@ -62,7 +61,12 @@ mkdir -p .git/hooks
 curl -Lo "${commit_msg_hook}" "${gerrit_authorized_url}"/tools/hooks/commit-msg 
 chmod +x "${commit_msg_hook}"
 
-# 5. Add webhook for Jenkins integration in cloned repo
+# 5. Save gerrit user credentials in local git config
+
+git config user.name "${gerrit_username}" --local
+git config user.email "${gerrit_user_email}" --local
+
+# 6. Add webhook for Jenkins integration in cloned repo
 # Webhook looks as follow: jenkins_url/gerrit-webhook/ ex. http://jenkins:8080/gerrit-webhook/
 jenkins_url=http://jenkins:8080
 git fetch origin refs/meta/config:refs/remotes/origin/meta/config
@@ -72,4 +76,9 @@ git add webhooks.config
 git commit -m "Add jenkins webhook"
 git push origin meta/config:meta/config
 
-# 4. Add sample Jenkinsfile to repo
+# 7. Add sample Jenkinsfile to repo
+git checkout master
+cp ../Jenkinsfile .
+git add Jenkinsfile
+git commit -m "Add Jenkinsfile"
+git push origin master

@@ -24,8 +24,6 @@ services:
     ports:
       - 8081:8080
       - 50000:50000
-    expose:
-      - 8080
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
       JENKINS_OPTS: --argumentsRealm.roles.admin=admin --argumentsRealm.roles.user=${JENKINS_USERNAME:-admin} --argumentsRealm.passwd.admin=${JENKINS_PASSWORD:-admin}
