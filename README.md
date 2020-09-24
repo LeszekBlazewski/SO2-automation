@@ -12,11 +12,11 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 ### Now
 
-0. CHECK IF MOVING TO OUTISE MAIN GIT REPO THE SCRIPT WOULD WORK
+0. Try to make preconfigured jenkins job which will have all the necessary permissions (mulitbranch pipeline with gerrit source and credentials for admin used in gerrit)
 
-1. Fix setup_gerrit_repo.sh to use ssh and make sure that the whole script works with webhook configuration
+1. Add to Jenkinsfile stage which will sent message from jenkins to gerrit after the Job is sucessfull.
 
-2. Try to make preconfigured jenkins job which will have all the necessary permissions (mulitbranch pipeline with gerrit source and credentials for admin used in gerrit)
+2. Write instructions in readme which will guide to run the whole PoC.
 
 ### Production
 
