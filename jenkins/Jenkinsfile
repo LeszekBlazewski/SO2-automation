@@ -7,4 +7,9 @@ pipeline {
             }
         }
     }
+     post {
+        success { gerritReview labels: ['Code-Review': 1] }
+        unstable { gerritReview labels: ['Code-Review': 0] }
+        failure { gerritReview labels: ['Code-Review': -1] }
+    }
 }

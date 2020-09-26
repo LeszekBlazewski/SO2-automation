@@ -1,5 +1,5 @@
 docker-workflow
 workflow-aggregator
 gerrit-code-review
-configuration-as-code
 job-dsl
+configuration-as-code
