@@ -10,20 +10,21 @@ docker-compose up -d
 ./setup_gerrit_repo.sh -p gerrit-http-password
 ```
 
-Checkout [gerrit-repo](http://localhost:8080) and [jenkins](http://localhost:8081) to see the magic happen !
+Go checkout [gerrit-repo](http://localhost:8080) and [jenkins](http://localhost:8081) to see the magic happen !
 
 Also clone the repo locally and push some changes to gerrit to check whether jenkins catches everthing.
 
 ## TO DO
 
-0. Add admin credentials in JCasC config which will allow jenkins to post messages to gerrit.
-   Probably we have to create a new user in gerrit and add him required permissions.
+0. setup_gerrit_repo.sh:
+   a) Add new label which will be used by jenkins to post job execution status (also modify Jenkinsfile) (move from Code-Review)
+   b) Create new check via Rest API to display jenkins buildurl
 
-1. Modify JenkinsFile to include post build message sent to gerrit.
+1. Modify Jenkinsfile to use env variables in order to get the build url and forward it correctly to gerrit checks.
 
-2. Modify gerrit Dockerfile to automatically install checks plugin.
+2. Check all environment variables and try to use them wherever possible.
 
-3. Integrate checks plugin in gerrit and jenkins.
+3. Split scripts in separate files (mostly move jenkins stuff outsude setup gerrit repo script)
 
 4. Write instructions in readme which will guide to run the whole PoC.
 
