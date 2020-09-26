@@ -1,0 +1,16 @@
+jobs:
+  - script: >
+      job('JCasC-Job-DSL-Seed') {
+        scm {
+          git {
+            remote {
+              url 'http://gerrit:8080/gerrit-jenkins-test'
+            }
+          }
+        }
+        steps {
+          jobDsl {
+            targets 'jobs/**/*.groovy'
+          }
+        }
+      }

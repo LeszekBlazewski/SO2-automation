@@ -4,7 +4,7 @@ set -e
 
 # Creates new gerrit repo with  webhook for jenkins integration
 # NOTE: 
-# 1. Http generated password must be provided to script from gerrit portal
+# Http generated password must be provided to script from gerrit portal
 
 source .env
 
@@ -14,8 +14,10 @@ gerrit_user_email=${GERRIT_USER_EMAIL:-"admin@example.com"}
 gerrit_url=${GERRIT_CANONICAL_WEB_URL:-http://localhost:8080}
 gerrit_domain="${gerrit_url#*//}"
 gerrit_project_name=${GERRIT_PROJECT_NAME:-gerrit-jenkins-test}
-
-# Check if http password is provided to script
+jenkins_username=${JENKINS_USERNAME:-admin}
+jenkins_password=${JENKINS_PASSWORD:-admin}
+jenkins_url=${JENKINS_URL:-http://localhost:8081}
+sleep_time=5
 
 usage() {
     echo "Usage: setup_gerrit_repo.sh -p http-password-from-gerrit"
@@ -24,7 +26,6 @@ usage() {
 }
 
 if [[ -z "$gerrit_user_password" ]]; then
-
     while getopts ":p:" opt; do
         case ${opt} in
             p )
@@ -40,45 +41,62 @@ shift $((OPTIND-1))
 if [[ -z "${gerrit_user_password}" ]]; then
     usage
 fi
-
 fi
 
-# 2. Http url with gerrit user credentials
-gerrit_authorized_url=http://"${gerrit_username}:${gerrit_user_password}@${gerrit_domain}/a"
+# Encode gerrit password
+encoded_gerrit_password=$(python3 -c "from urllib.parse import quote; print(quote('''$gerrit_user_password''', safe=''))")
 
-# 3. Create new gerrit repository
+# Http url with gerrit user credentials
+gerrit_authorized_url=http://"${gerrit_username}:${encoded_gerrit_password}@${gerrit_domain}/a"
 
+# Create new gerrit repository
 curl --header "Content-Type: application/json" \
     --request PUT \
     --data '{"description":"Sample project for Jenkins<->gerrit integration","create_empty_commit":true}' \
     "${gerrit_authorized_url}/projects/${gerrit_project_name}"
 
-# 4. Clone new repo to host system with commit-msg hook
+# Clone new repo to host system with commit-msg hook
 commit_msg_hook=$(git rev-parse --git-dir)/hooks/commit-msg 
-
 git clone "${gerrit_authorized_url}/${gerrit_project_name}" && cd "${gerrit_project_name}"
 mkdir -p .git/hooks
 curl -Lo "${commit_msg_hook}" "${gerrit_authorized_url}"/tools/hooks/commit-msg 
 chmod +x "${commit_msg_hook}"
 
-# 5. Save gerrit user credentials in local git config
-
+# Save gerrit user credentials in local git config
 git config user.name "${gerrit_username}" --local
 git config user.email "${gerrit_user_email}" --local
 
-# 6. Add webhook for Jenkins integration in cloned repo
-# Webhook looks as follow: jenkins_url/gerrit-webhook/ ex. http://jenkins:8080/gerrit-webhook/
-jenkins_url=http://jenkins:8080
+# Add webhook for Jenkins integration in cloned repo
 git fetch origin refs/meta/config:refs/remotes/origin/meta/config
 git checkout meta/config
-printf '[remote "jenkins"]\n    url = %s' "${jenkins_url}/gerrit-webhook/" > webhooks.config
+cp ../gerrit/webhooks.config .
 git add webhooks.config
 git commit -m "Add jenkins webhook"
 git push origin meta/config:meta/config
 
-# 7. Add sample Jenkinsfile to repo
+# Add sample Jenkinsfile with preconfigured JobDSL to repo
 git checkout master
-cp ../Jenkinsfile .
-git add Jenkinsfile
-git commit -m "Add Jenkinsfile"
+cp ../jenkins/Jenkinsfile .
+mkdir jobs
+cp -a ../jenkins/jobs/. jobs
+git add -A
+git commit -m "Add Jenkinsfile and JobDSL"
 git push origin master
+
+# Waint until Jenkins is ready
+until curl --silent --location --fail  "${jenkins_url}" --output /dev/null
+do
+    echo "Jenkins unavailable, sleeping for ${sleep_time}"
+    sleep "${sleep_time}"
+done
+
+# Run the JobDSL discovery job
+cookiejar="$(mktemp)"
+jenkins_crumb=$(curl -s -u "${jenkins_username}:${jenkins_password}" \
+    --cookie-jar "$cookiejar" \
+    "$jenkins_url"'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)'
+    )
+curl -X POST -s -u "${jenkins_username}:${jenkins_password}" \
+    --cookie "$cookiejar" \
+    -H "$jenkins_crumb" \
+    "${jenkins_url}/job/JCasC-Job-DSL-Seed/build"
