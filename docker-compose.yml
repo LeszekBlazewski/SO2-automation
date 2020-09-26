@@ -26,9 +26,11 @@ services:
       - 50000:50000
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      CASC_JENKINS_CONFIG: ${CASC_JENKINS_CONFIG:-/usr/share/jenkins/ref/JCasC}
       JENKINS_OPTS: --argumentsRealm.roles.admin=admin --argumentsRealm.roles.user=${JENKINS_USERNAME:-admin} --argumentsRealm.passwd.admin=${JENKINS_PASSWORD:-admin}
     volumes:
       - jenkins-volume:/var/jenkins_home
+      - ./jenkins/JCasC:${CASC_JENKINS_CONFIG:-/usr/share/jenkins/ref/JCasC}
       - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
