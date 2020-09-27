@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 # Creates new gerrit repo with  webhook for jenkins integration
 # NOTE: 
@@ -49,46 +49,90 @@ encoded_gerrit_password=$(python3 -c "from urllib.parse import quote; print(quot
 # Http url with gerrit user credentials
 gerrit_authorized_url=http://"${gerrit_username}:${encoded_gerrit_password}@${gerrit_domain}/a"
 
-# Add new label with proper permissions in All-Projects repo for CI builds/tests
-
 # Install checks plugin
 plugin_id="checks"
 plugin_source='"https://gerrit-ci.gerritforge.com/job/plugin-checks-bazel-stable-3.2/18//artifact/bazel-bin/plugins/checks/checks.jar"'
 curl --header "Content-Type: application/json" \
     --request PUT \
+    --silent \
+    --show-error \
+    --output /dev/null \
     --data '{"url":'"${plugin_source}"'}' \
     "${gerrit_authorized_url}/plugins/${plugin_id}.jar"
 
-# Grant permissions to checks plugin for Administrators group in All-Projects repo
+# Add new label Verified
+# If you modify this you probably have to modify update_permission_rules_request.json also.
+label_name="Verified"
+label_values='"values": {
+    "-1": "Fails",
+    "0": "No score",
+    "+1": "Verified"
+    }
+'
+
 curl --header "Content-Type: application/json" \
     --request POST \
-    --data '{"add":{"GLOBAL_CAPABILITIES":{"permissions":{"checks-administrateCheckers":{"rules":{"Administrators":{"action":"ALLOW","added":true}},"added":true}}}},"remove":{}}' \
+    --silent \
+    --show-error \
+    --output /dev/null \
+    --data '{"commit_message": "Create'"${label_name}"'label", '"${label_values}"'}' \
+    "${gerrit_authorized_url}/projects/All-Projects/labels/${label_name}"
+
+# Grant permissions for:
+# 1. checks-administrateCheckers -> Administrators,  Non-interactive users
+# 2. READ refs/* + Label Verified && Code-Review on refs/heads/* -> Non-interactive users 
+# 3. Label Verified on refs/heads/* -> Verified
+permission_request_file='./gerrit/update_permission_rules_request.json'
+curl --header "Content-Type: application/json" \
+    --request POST \
+    --silent \
+    --show-error \
+    --output /dev/null \
+    --data @"${permission_request_file}" \
     "${gerrit_authorized_url}/projects/All-Projects/access"
 
 # Create Jenkins user in gerrit
 curl --header "Content-Type: application/json" \
     --request PUT \
-    --data '{"name":"JenkinsCI", "http_password":"'"${jenkins_password}"'"}' \
+    --silent \
+    --show-error \
+    --output /dev/null \
+    --data '{"name":"JenkinsCI", "email": "jenkins@example.com", "groups":["Non-Interactive Users"], "http_password":"'"${jenkins_password}"'"}' \
     "${gerrit_authorized_url}/accounts/${jenkins_username}"
 
 # Create new gerrit repository
 curl --header "Content-Type: application/json" \
     --request PUT \
-    --data '{"description":"Sample project for Jenkins<->gerrit integration","create_empty_commit":true}' \
+    --silent \
+    --show-error \
+    --output /dev/null \
+    --data '{"description":"Sample project for Jenkins<->gerrit integration", "permissions_only": false, "parent": "", "create_empty_commit":true}' \
     "${gerrit_authorized_url}/projects/${gerrit_project_name}"
 
-# Create new check for Jenkins job display in sample gerrit repo
+# Create new check for Jenkins job in ${gerrit_project_name} gerrit repo
+# Adjust variables in check request
+check_request_file='./gerrit/create_check_request.json'
+sed -i "s/gerrit_project_name/${gerrit_project_name}/" "$check_request_file"
+
+curl --header "Content-Type: application/json" \
+    --request POST \
+    --silent \
+    --show-error \
+    --output /dev/null \
+    --data @"${check_request_file}" \
+    "${gerrit_authorized_url}/plugins/checks/checkers/"
 
 # Clone new repo to host system with commit-msg hook
-commit_msg_hook=$(git rev-parse --git-dir)/hooks/commit-msg 
+rm -rf "$gerrit_project_name"
 git clone "${gerrit_authorized_url}/${gerrit_project_name}" && cd "${gerrit_project_name}"
 mkdir -p .git/hooks
-curl -Lo "${commit_msg_hook}" "${gerrit_authorized_url}"/tools/hooks/commit-msg 
+commit_msg_hook=$(git rev-parse --git-dir)/hooks/commit-msg 
+curl -sSLo "${commit_msg_hook}" "${gerrit_authorized_url}"/tools/hooks/commit-msg 
 chmod +x "${commit_msg_hook}"
 
 # Save gerrit user credentials in local git config
-git config user.name "${gerrit_username}" --local
-git config user.email "${gerrit_user_email}" --local
+git config --local user.name "${gerrit_username}" 
+git config --local user.email "${gerrit_user_email}"
 
 # Add webhook for Jenkins integration in cloned repo
 git fetch origin refs/meta/config:refs/remotes/origin/meta/config
@@ -98,17 +142,16 @@ git add webhooks.config
 git commit -m "Add jenkins webhook"
 git push origin meta/config:meta/config
 
-# Add sample Jenkinsfile with preconfigured JobDSL to repo
+# Add preconfigured JobDSL to create Jenkins Jobs
 git checkout master
-cp ../jenkins/Jenkinsfile .
-mkdir jobs
-cp -a ../jenkins/jobs/. jobs
+mkdir "jobs"
+cp -a ../jenkins/jobs/. "jobs"
 git add -A
-git commit -m "Add Jenkinsfile and JobDSL"
-git push origin HEAD:refs/for/master
+git commit -m "Add JobDSL definition"
+git push origin HEAD:refs/heads/master
 
 # Waint until Jenkins is ready
-until curl --silent --location --fail  "${jenkins_url}" --output /dev/null
+until curl --silent --show-error --location --fail  "${jenkins_url}" --output /dev/null
 do
     echo "Jenkins unavailable, sleeping for ${sleep_time}"
     sleep "${sleep_time}"
@@ -120,7 +163,22 @@ jenkins_crumb=$(curl -s -u "${jenkins_username}:${jenkins_password}" \
     --cookie-jar "$cookiejar" \
     "$jenkins_url"'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)'
     )
-curl -X POST -s -u "${jenkins_username}:${jenkins_password}" \
+curl -X POST --header "$jenkins_crumb" \
+    --user "${jenkins_username}:${jenkins_password}" \
     --cookie "$cookiejar" \
-    -H "$jenkins_crumb" \
+    --silent \
+    --show-error \
+    --output /dev/null \
     "${jenkins_url}/job/JCasC-Job-DSL-Seed/build"
+
+# Propose sample change with JenkinsFile and script
+git checkout master
+cp ../jenkins/Jenkinsfile .
+cp ../test_script.sh .
+git add -A
+git commit -m "Add Jenkinsfile and sample script"
+git push origin HEAD:refs/for/master
+
+echo "Sucess ! Quickly check:"
+echo "Gerrit changes: ${gerrit_url}"
+echo "Jenkins running your jobs:${jenkins_url}"

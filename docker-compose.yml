@@ -30,6 +30,7 @@ services:
       JENKINS_OPTS: --argumentsRealm.roles.admin=admin --argumentsRealm.roles.user=${JENKINS_USERNAME:-jenkins} --argumentsRealm.passwd.admin=${JENKINS_PASSWORD:-jenkins}
       JENKINS_USERNAME: ${JENKINS_USERNAME:-jenkins}
       JENKINS_PASSWORD: ${JENKINS_PASSWORD:-jenkins}
+      JENKINS_URL: ${JENKINS_URL:-http://localhost:8081}
     volumes:
       - jenkins-volume:/var/jenkins_home
       - ./jenkins/JCasC:${CASC_JENKINS_CONFIG:-/usr/share/jenkins/ref/JCasC}

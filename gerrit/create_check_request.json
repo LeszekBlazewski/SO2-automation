@@ -1,0 +1,8 @@
+{
+  "uuid": "Jenkins:Test",
+  "name": "Jenkins Test",
+  "description": "Test code on Jenkins Job",
+  "repository": "gerrit-jenkins-test",
+  "query": "",
+  "blocking": []
+}
