@@ -4,29 +4,37 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 ## Run
 
+Quick recommendation, run docker-compose in separate terminal in order to see live logs and be sure when to acess gerrit :D
+
+### **Order of scripts is important, please follow allong**
+
+### **NOTE**
+
+[setup_jenkins_user_on_host.sh](setup_jenkins_user_on_host.sh) will ask you for sudo permission since it needs to create jenkins user on host machine and grant him proper permissions. This is necessary to allow Jenkins spawning sibling containers (on host machine) in Pipelines so we are not playing around with dind (docker in docker).
+
 ```bash
-./setup_jenkins_user.sh
-docker-compose up -d
+./setup_jenkins_user_on_host.sh
+docker-compose up
 ./setup_gerrit_repo.sh -p gerrit-http-password
 ```
 
-Go checkout [gerrit-repo](http://localhost:8080) and [jenkins](http://localhost:8081) to see the magic happen !
+What is `gerrit-http-password` ? Sadly in order to configure the whole stack almost all of the gerrit related configuration relays on gerrit REST API so this step has to be performed manually by providing HTTP generated password for administratior in gerrit portal.
+
+**_Alright alright, but how do I retrive the password !_**
+
+Simply navigate to [gerrit](http://localhost:8080) when the container is fully started (INFO com.google.gerrit.pgm.Daemon : Gerrit Code Review 3.2.3 ready in docker log of the container). Skip the plugin installation part, you should be automatically logged in as admin, top right corner settings wheel, left section HTTP Credentials, Click on GENERATE NEW PASSWORD, supply to script.
+
+Go checkout [gerrit](http://localhost:8080) and [jenkins](http://localhost:8081) to see the magic happen !
 
 Also clone the repo locally and push some changes to gerrit to check whether jenkins catches everthing.
 
+**_When restarting_**
+
+During playtime be sure to also clear docker volumes since compose uses them (to make sure you have a fresh install each time you spin up the containers)
+
 ## TO DO
 
-0. setup_gerrit_repo.sh:
-   a) Add new label which will be used by jenkins to post job execution status (also modify Jenkinsfile) (move from Code-Review)
-   b) Create new check via Rest API to display jenkins buildurl
-
-1. Modify Jenkinsfile to use env variables in order to get the build url and forward it correctly to gerrit checks.
-
-2. Check all environment variables and try to use them wherever possible.
-
-3. Split scripts in separate files (mostly move jenkins stuff outsude setup gerrit repo script)
-
-4. Write instructions in readme which will guide to run the whole PoC.
+1. Write instructions in readme which will guide to run the whole PoC.
 
 ### Ideas
 
