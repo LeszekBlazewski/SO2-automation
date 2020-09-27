@@ -6,7 +6,7 @@ multibranchPipelineJob('gerrit-jenkins-test-CI') {
                 gerrit {
                     id('gerrit-ci-branch-source')
                     credentialsId('gerrit-jenkins-user')
-                    remote('http://gerrit:8080/gerrit-jenkins-test')
+                    remote('http://gerrit:8080/gerrit_project_name')
                     insecureHttps(false)
                     traits {
                         changeDiscoveryTrait {

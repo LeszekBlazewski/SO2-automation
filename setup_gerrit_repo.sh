@@ -2,9 +2,8 @@
 
 set -eu
 
-# Creates new gerrit repo with  webhook for jenkins integration
-# NOTE: 
-# Http generated password must be provided to script from gerrit portal
+# Creates new gerrit repo with  webhook and checks for jenkins integration 
+# NOTE: Http generated password must be provided to script from gerrit portal
 
 source .env
 
@@ -16,8 +15,6 @@ gerrit_domain="${gerrit_url#*//}"
 gerrit_project_name=${GERRIT_PROJECT_NAME:-gerrit-jenkins-test}
 jenkins_username=${JENKINS_USERNAME:-jenkins}
 jenkins_password=${JENKINS_PASSWORD:-jenkins}
-jenkins_url=${JENKINS_URL:-http://localhost:8081}
-sleep_time=5
 
 usage() {
     echo "Usage: setup_gerrit_repo.sh -p http-password-from-gerrit"
@@ -142,43 +139,10 @@ git add webhooks.config
 git commit -m "Add jenkins webhook"
 git push origin meta/config:meta/config
 
-# Add preconfigured JobDSL to create Jenkins Jobs
-git checkout master
-mkdir "jobs"
-cp -a ../jenkins/jobs/. "jobs"
-git add -A
-git commit -m "Add JobDSL definition"
-git push origin HEAD:refs/heads/master
+cd ..
 
-# Waint until Jenkins is ready
-until curl --silent --show-error --location --fail  "${jenkins_url}" --output /dev/null
-do
-    echo "Jenkins unavailable, sleeping for ${sleep_time}"
-    sleep "${sleep_time}"
-done
+# Post build configuration of Jenkins Jobs
+./setup_jenkins_gerrit_jobs.sh
 
-# Run the JobDSL discovery job
-cookiejar="$(mktemp)"
-jenkins_crumb=$(curl -s -u "${jenkins_username}:${jenkins_password}" \
-    --cookie-jar "$cookiejar" \
-    "$jenkins_url"'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)'
-    )
-curl -X POST --header "$jenkins_crumb" \
-    --user "${jenkins_username}:${jenkins_password}" \
-    --cookie "$cookiejar" \
-    --silent \
-    --show-error \
-    --output /dev/null \
-    "${jenkins_url}/job/JCasC-Job-DSL-Seed/build"
-
-# Propose sample change with JenkinsFile and script
-git checkout master
-cp ../jenkins/Jenkinsfile .
-cp ../test_script.sh .
-git add -A
-git commit -m "Add Jenkinsfile and sample script"
-git push origin HEAD:refs/for/master
-
-echo "Sucess ! Quickly check:"
-echo "Gerrit changes: ${gerrit_url}"
-echo "Jenkins running your jobs:${jenkins_url}"
+# Create sample change in gerrit repo for demo
+./test_resources/create_gerrit_change.sh

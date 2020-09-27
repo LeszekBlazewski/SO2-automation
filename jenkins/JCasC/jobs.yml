@@ -4,7 +4,7 @@ jobs:
         scm {
           git {
             remote {
-              url 'http://gerrit:8080/gerrit-jenkins-test'
+              url "http://gerrit:8080/${GERRIT_PROJECT_NAME}"
             }
           }
         }

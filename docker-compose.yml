@@ -31,6 +31,7 @@ services:
       JENKINS_USERNAME: ${JENKINS_USERNAME:-jenkins}
       JENKINS_PASSWORD: ${JENKINS_PASSWORD:-jenkins}
       JENKINS_URL: ${JENKINS_URL:-http://localhost:8081}
+      GERRIT_PROJECT_NAME: ${GERRIT_PROJECT_NAME:-gerrit-jenkins-test}
     volumes:
       - jenkins-volume:/var/jenkins_home
       - ./jenkins/JCasC:${CASC_JENKINS_CONFIG:-/usr/share/jenkins/ref/JCasC}

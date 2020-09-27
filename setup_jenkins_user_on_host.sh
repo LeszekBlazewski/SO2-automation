@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu pipefail
 
 # Creates jenkins user and adds him to docker group on host system in order
 # to allow jenkins spawning sibling containers in his jobs
