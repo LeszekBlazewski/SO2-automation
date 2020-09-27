@@ -89,6 +89,6 @@ https://www.youtube.com/watch?v=pyPMeCW-Q5k -> How [GerritForge](https://gerrit-
 
 [Gerrit source code](https://gerrit-review.googlesource.com/) -> Yeah it has been handy when configuring all the stuff :D
 
-[Gerrit Code Review Jenkins plugin](https://plugins.jenkins.io/gerrit-code-review/) -> still under heavy development, no documentation at all but after you grasp the idea it is really powerfull.
+[Gerrit Code Review Jenkins plugin](https://plugins.jenkins.io/gerrit-code-review/) -> still under heavy development, no documentation at all but after you grasp the idea it is really powerfull. Currently implemented [methods](https://www.jenkins.io/doc/pipeline/steps/gerrit-code-review/#gerritreview-gerrit-review-label)
 
 [Implement checks in GerritForge](https://gerrit-review.googlesource.com/c/gerrit-ci-scripts/+/224327) -> this has been dug from google conversations in order to make this setup work
