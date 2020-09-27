@@ -34,15 +34,13 @@ During playtime be sure to also clear docker volumes since compose uses them (to
 
 ## TO DO
 
-1. Write instructions in readme which will guide to run the whole PoC.
+0. Refactor on new branch to Gerrit Trigger ?
 
 ### Ideas
 
-0. Add reverse proxy in front of the containers to easily access given services on user friendly URLS. (caddy could be nice if letsencrypt (SWAG) will not work correctly for localhost)
+- Add reverse proxy in front of the containers to easily access given services on user friendly URLS. (caddy could be nice if letsencrypt docker image (SWAG) will not work correctly for localhost)
 
-1. On Deploy use SWAG (lets encrypt docker image) which has certbot onboard which will take care of automatic cert renewal and will provide SSL for all the urls + implement basic auth for access with secure credentials.
-
-2. Configure Cloud section in JCasC to use docker containers as slaves (also provisioned by jenkins when needed)
+- Configure Cloud section in JCasC to use docker containers as slaves (also provisioned by jenkins when needed)
 
 # Configuration section to automate everthing
 
@@ -53,23 +51,44 @@ During playtime be sure to also clear docker volumes since compose uses them (to
 - docker-workflow (for docker inside pipeline)
 - workflow-aggregator (for pipelines support)
 - gerrit-code-review (better alternative to gerrit trigger)
+- job-dsl (dynamic job configuration)
+- configuration-as-code (JCasC)
 
-### 2.Add preconfigured multibranch pipeline to Jenkins which will have all settings setup to fetch changes by SCM from gerrit repo:
+### 2.JCasC and Configuration as Code
 
-- It would be nice if Jenkins would add a multibranch project per repo automatically when new repo is created in gerrit. (JCasC maybe ?)
+**Overall Jenkins config**
 
-- If not possible configure one Job which will listen for changes from the main repo.
+JCasC has been used in order to setup initial jobs for Jenkins, provide credentials for Gerrit jenkins user (JenkinsCI) who has correct permissions set up and configure other basic settings.
 
-### 3. Automatically add admin persmissions (gerrit user) to Jenkins (need to be fetched from gerrit) [Would be nice if security credentials could be stored in JCasC config but they need to be retrieved from Gerrit by using REST API] -> this should allow jenkins job builds to post success/error messages to gerrit.
+**Job setup**
+
+We have a Job definitions [JCasC-Job-DSL-Seed](jenkins/JCasC/jobs.yml) in JCasC config which is reponsible for processing job definitions inside given gerrit repo (groovy definitions inside jobs folder). This Jenkins job is created at container startup by JCasC. This job is not triggered automatically since the Job definitions in Jenkins do not change that often, it can be triggered from Jenkins UI or with curl when needed.
+
+The nice thing is that JobDSL supports many Pipeline configurations and DynamicDSL extends the possibilities for almost every possible Jenkins plugin therefor no more Jenkins UI clicking, simply upload the definitions to given folder and trigger the preconfigured job :) -> Profit ? We have Jenkins job configured as Code which are easly to recreate.
 
 ## Gerrit configuration:
 
-### 1.For PoC use become user to not use authentication.
+All the configuration is done via Gerrit REST API. The only cumbersome settings is the Gerrit HTTP password which is needed in order to query all the endpoints. This has to provided by user therefore there is no place for full automation, the password needs to be retrieved from admin settings in portal.
 
-### 2.Durning setup automate the install of gerrit webhooks plugin (also configuration file for jenkins server is needed) -> plugin is installed automatically when using official gerrit docker image.
+All the configuration was parametrized with variables so the script could be potentially used in real world scenarions where other authentication is required.
 
-### 3. Automatically upload the SSH key to gerrit in order to make SSH work for the commit hook which adds ID.
+The [setup script](setup_gerrit_repo.sh) does the following:
+
+- Install checks plugin
+- Adds Verified label which is no longer automatically setup during Gerrit initialization
+- Grants permissions for Adminstrator and Non-interactive users to check plugin and label modification
+- Creates Jenkins user with preconfigured password (same password is used in JCasC to configure inital job)
+- Creates new gerrit repository
+- Adds sample check to repository
+- Adds webhook which is required for Gerrit<->Jenkins integration (Communicats with [Gerrit Code Review plugin](https://plugins.jenkins.io/gerrit-code-review/))
+- We assume webhooks plugin is already installed on Gerrit (Gerrit docker image has it preinstalled)
 
 # RESOURCES:
 
-https://www.youtube.com/watch?v=pyPMeCW-Q5k
+https://www.youtube.com/watch?v=pyPMeCW-Q5k -> How [GerritForge](https://gerrit-ci.gerritforge.com/) runs things (tbh this presentation is just the top of the mountain and the plugin does not has a documentation at all)
+
+[Gerrit source code](https://gerrit-review.googlesource.com/) -> Yeah it has been handy when configuring all the stuff :D
+
+[Gerrit Code Review Jenkins plugin](https://plugins.jenkins.io/gerrit-code-review/) -> still under heavy development, no documentation at all but after you grasp the idea it is really powerfull.
+
+[Implement checks in GerritForge](https://gerrit-review.googlesource.com/c/gerrit-ci-scripts/+/224327) -> this has been dug from google conversations in order to make this setup work
