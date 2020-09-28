@@ -72,13 +72,14 @@ curl --header "Content-Type: application/json" \
     --silent \
     --show-error \
     --output /dev/null \
-    --data '{"commit_message": "Create'"${label_name}"'label", '"${label_values}"'}' \
+    --data '{"commit_message": "Create '"${label_name}"' label", '"${label_values}"'}' \
     "${gerrit_authorized_url}/projects/All-Projects/labels/${label_name}"
 
 # Grant permissions for:
-# 1. checks-administrateCheckers -> Administrators,  Non-interactive users
-# 2. READ refs/* + Label Verified && Code-Review on refs/heads/* -> Non-interactive users 
-# 3. Label Verified on refs/heads/* -> Verified
+# 1. Label Code-Review on refs/heads/* -> Non-interactive users
+# 2. READ refs/* -> Non-interactive users
+# 3. checks-administrateCheckers -> Administrators, Non-interactive users
+# 4. Label Verified on refs/heads/* ->  Administrators, Non-interactive users
 permission_request_file='./gerrit/update_permission_rules_request.json'
 curl --header "Content-Type: application/json" \
     --request POST \
