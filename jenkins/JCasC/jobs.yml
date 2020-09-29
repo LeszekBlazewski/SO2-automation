@@ -1,6 +1,6 @@
 jobs:
   - script: >
-      job('JCasC-Job-DSL-Seed') {
+      job("${JENKINS_JOB_DSL_SEED_NAME}") {
         scm {
           git {
             remote {

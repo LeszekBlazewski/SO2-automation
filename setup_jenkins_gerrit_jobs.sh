@@ -10,6 +10,7 @@ gerrit_project_name=${GERRIT_PROJECT_NAME:-gerrit-jenkins-test}
 jenkins_url=${JENKINS_URL:-http://localhost:8081}
 jenkins_username=${JENKINS_USERNAME:-jenkins}
 jenkins_password=${JENKINS_PASSWORD:-jenkins}
+jenkins_job_dsl_seed_name=${JENKINS_JOB_DSL_SEED_NAME:-JCasC-Job-DSL-Seed}
 sleep_time=5
 
 cd "$gerrit_project_name"
@@ -42,4 +43,4 @@ curl -X POST --header "$jenkins_crumb" \
     --silent \
     --show-error \
     --output /dev/null \
-    "${jenkins_url}/job/JCasC-Job-DSL-Seed/build"
+    "${jenkins_url}/job/${jenkins_job_dsl_seed_name}/build"
