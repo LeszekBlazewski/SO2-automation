@@ -13,6 +13,7 @@ gerrit_user_email=${GERRIT_USER_EMAIL:-"admin@example.com"}
 gerrit_url=${GERRIT_CANONICAL_WEB_URL:-http://localhost:8080}
 gerrit_domain="${gerrit_url#*//}"
 gerrit_project_name=${GERRIT_PROJECT_NAME:-gerrit-jenkins-test}
+gerrit_template_repo_name=${GERRIT_TEMPLATE_REPO_NAME:-'Students-Template-Projects'}
 jenkins_username=${JENKINS_USERNAME:-jenkins}
 jenkins_password=${JENKINS_PASSWORD:-jenkins}
 
@@ -75,17 +76,8 @@ curl --header "Content-Type: application/json" \
     --data '{"commit_message": "Create '"${label_name}"' label", '"${label_values}"'}' \
     "${gerrit_authorized_url}/projects/All-Projects/labels/${label_name}"
 
-# Create new Students group
-group_name='Students'
-curl --header "Content-Type: application/json" \
-    --request PUT \
-    --silent \
-    --show-error \
-    --output /dev/null \
-    --data '"description":"Students group which allows access only to user branches", "owner":"Administrators"' \
-    "${gerrit_authorized_url}/groups/${group_name}"
-
-# Create new students group repo template
+# Create new students group and template
+./setup_students_template.sh  "$gerrit_authorized_url" "$gerrit_username" "$gerrit_user_email" "$gerrit_template_repo_name"
 
 # Grant permissions for:
 # 1. Label Code-Review on refs/heads/* -> Non-interactive users
@@ -116,7 +108,7 @@ curl --header "Content-Type: application/json" \
     --silent \
     --show-error \
     --output /dev/null \
-    --data '{"description":"Sample project for Jenkins<->gerrit integration", "permissions_only": false, "parent": "", "create_empty_commit":true}' \
+    --data '{"description":"Sample project for Jenkins<->gerrit integration", "permissions_only": false, "parent": "'"$gerrit_template_repo_name"'", "create_empty_commit": true, "owners": ["Administrators"]}' \
     "${gerrit_authorized_url}/projects/${gerrit_project_name}"
 
 # Create new check for Jenkins job in ${gerrit_project_name} gerrit repo
