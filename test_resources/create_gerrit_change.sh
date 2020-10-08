@@ -15,11 +15,11 @@ cd "$gerrit_project_name"
 
 # Propose sample change with JenkinsFile and script
 git checkout master
-cp -a ../test_resources/. .
+cp ../test_resources/Jenkinsfile ../test_resources/test_script.sh .
 git add -A
 git commit -m "Add Jenkinsfile and sample script"
 git push origin HEAD:refs/for/master
 
 echo "Sucess ! Quickly check:"
 echo "Gerrit changes: ${gerrit_url}"
-echo "Jenkins running your jobs:${jenkins_url}"
+echo "Jenkins running your jobs: ${jenkins_url}"
