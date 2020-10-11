@@ -137,12 +137,12 @@ git config --local user.name "${gerrit_username}"
 git config --local user.email "${gerrit_user_email}"
 
 # Add webhook for Jenkins integration in cloned repo
-git fetch origin refs/meta/config:refs/remotes/origin/meta/config
-git checkout meta/config
+git fetch origin refs/meta/config
+git checkout FETCH_HEAD
 cp ../gerrit/webhooks.config .
 git add webhooks.config
 git commit -m "Add jenkins webhook"
-git push origin meta/config:meta/config
+git push origin HEAD:refs/meta/config
 
 cd ..
 

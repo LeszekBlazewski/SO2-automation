@@ -15,13 +15,14 @@ sleep_time=5
 
 cd "$gerrit_project_name"
 
-# Add preconfigured JobDSL to create Jenkins Jobs
+# Add preconfigured JobDSL to create Jenkins Jobs and sample Jenkinsfile
 git checkout master
 mkdir "jobs"
 cp -a ../jenkins/jobs/. "jobs"
+cp ../test_resources/Jenkinsfile .
 sed -i "s/gerrit_project_name/${gerrit_project_name}/" "jobs/gerrit_repo_ci_job.groovy"
 git add -A
-git commit -m "Add JobDSL definition"
+git commit -m "Add JobDSL definition with sample Jenkinsfile"
 git push origin HEAD:refs/heads/master
 
 # Waint until Jenkins is ready
