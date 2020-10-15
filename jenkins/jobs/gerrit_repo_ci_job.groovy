@@ -6,7 +6,7 @@ multibranchPipelineJob('gerrit-jenkins-test-CI') {
                 gerrit {
                     id('gerrit-ci-branch-source')
                     credentialsId('gerrit-jenkins-user')
-                    remote('http://gerrit:8080/gerrit_project_name')
+                    remote('http://gerrit:8080/a/gerrit_project_name')
                     insecureHttps(false)
                     traits {
                         changeDiscoveryTrait {
@@ -15,7 +15,7 @@ multibranchPipelineJob('gerrit-jenkins-test-CI') {
                         refSpecsSCMSourceTrait {
                             templates {
                                 refSpecTemplate {
-                                    value('+refs/heads/*:refs/remotes/@{remote}/*')
+                                    value('+refs/changes/*:refs/remotes/@{remote}/*')
                                 }
                             }
                         }

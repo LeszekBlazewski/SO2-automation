@@ -13,7 +13,7 @@ Quick recommendation, run docker-compose in separate terminal in order to see li
 [setup_jenkins_user_on_host.sh](setup_jenkins_user_on_host.sh) will ask you for sudo permission since it needs to create jenkins user on host machine and grant him proper permissions. This is necessary to allow Jenkins spawning sibling containers (on host machine) in Pipelines so we are not playing around with dind (docker in docker).
 
 ```bash
-./setup_jenkins_user_on_host.sh
+./setup_docker_gid.sh
 docker-compose up
 ./setup_gerrit_repo.sh -p gerrit-http-password
 ```
@@ -34,7 +34,9 @@ During playtime be sure to also clear docker volumes since compose uses them (to
 
 ## TO DO
 
-0. Refactor on new branch to Gerrit Trigger ?
+1. Check if changed files are displayed correctly when Jenkins does not post comments on file which is not included in given changeset (remove post on test.sh)
+
+2. Check if filterring on closed/merged patchsets is done correctly (YT video filter addon)
 
 ### Ideas
 

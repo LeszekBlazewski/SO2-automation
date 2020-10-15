@@ -18,7 +18,6 @@ services:
     build:
       context: jenkins
       args:
-        HOST_UID: ${HOST_UID}
         HOST_GID: ${HOST_GID}
     restart: unless-stopped
     ports:

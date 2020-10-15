@@ -1,6 +1,5 @@
 FROM jenkins/jenkins:lts
 
-ARG HOST_UID
 ARG HOST_GID
 
 USER root
@@ -17,12 +16,10 @@ RUN apt-get -y update && \
     $(lsb_release -cs) \
     stable" && \
     apt-get update && \
-    apt-get -y install docker-ce docker-ce-cli containerd.io
-
-RUN usermod -aG docker jenkins
-RUN groupmod -g $HOST_GID docker
-RUN usermod -aG docker jenkins
+    apt-get -y install docker-ce docker-ce-cli containerd.io && \
+    groupmod -g $HOST_GID docker && \
+    usermod -aG docker jenkins
 
 USER jenkins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
