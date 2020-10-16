@@ -2,7 +2,7 @@
 
 set -eu
 
-# Creates sample change with JenkinsFile and script in preconfigured repo
+# Creates sample change with  script in preconfigured repo which triggers Jenkins build
 # We assume that Jenkins and gerrit are already running and Jenkins has his jobs preconfigured
 
 source .env
@@ -15,11 +15,11 @@ cd "$gerrit_project_name"
 
 # Propose sample change with JenkinsFile and script
 git checkout master
-cp -a ../test_resources/. .
+cp ../test_resources/test_script.sh .
 git add -A
-git commit -m "Add Jenkinsfile and sample script"
+git commit -m "Add sample script"
 git push origin HEAD:refs/for/master
 
 echo "Sucess ! Quickly check:"
 echo "Gerrit changes: ${gerrit_url}"
-echo "Jenkins running your jobs:${jenkins_url}"
+echo "Jenkins running your jobs: ${jenkins_url}"

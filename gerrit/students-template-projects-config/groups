@@ -1,0 +1,6 @@
+# UUID												Group Name
+#
+global:Anonymous-Users  			Anonymous Users
+global:Registered-Users  			   Registered Users
+students_group_uuid  					Students
+administrators_group_uuid 			Administrators 

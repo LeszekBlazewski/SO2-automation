@@ -13,6 +13,7 @@ gerrit_user_email=${GERRIT_USER_EMAIL:-"admin@example.com"}
 gerrit_url=${GERRIT_CANONICAL_WEB_URL:-http://localhost:8080}
 gerrit_domain="${gerrit_url#*//}"
 gerrit_project_name=${GERRIT_PROJECT_NAME:-gerrit-jenkins-test}
+gerrit_template_repo_name=${GERRIT_TEMPLATE_REPO_NAME:-'Students-Template-Projects'}
 jenkins_username=${JENKINS_USERNAME:-jenkins}
 jenkins_password=${JENKINS_PASSWORD:-jenkins}
 
@@ -75,6 +76,9 @@ curl --header "Content-Type: application/json" \
     --data '{"commit_message": "Create '"${label_name}"' label", '"${label_values}"'}' \
     "${gerrit_authorized_url}/projects/All-Projects/labels/${label_name}"
 
+# Create new students group and template
+./setup_students_template.sh  "$gerrit_authorized_url" "$gerrit_username" "$gerrit_user_email" "$gerrit_template_repo_name"
+
 # Grant permissions for:
 # 1. Label Code-Review on refs/heads/* -> Non-interactive users
 # 2. READ refs/* -> Non-interactive users
@@ -104,7 +108,7 @@ curl --header "Content-Type: application/json" \
     --silent \
     --show-error \
     --output /dev/null \
-    --data '{"description":"Sample project for Jenkins<->gerrit integration", "permissions_only": false, "parent": "", "create_empty_commit":true}' \
+    --data '{"description":"Sample project for Jenkins<->gerrit integration", "permissions_only": false, "parent": "'"$gerrit_template_repo_name"'", "create_empty_commit": true, "owners": ["Administrators"]}' \
     "${gerrit_authorized_url}/projects/${gerrit_project_name}"
 
 # Create new check for Jenkins job in ${gerrit_project_name} gerrit repo
@@ -133,12 +137,12 @@ git config --local user.name "${gerrit_username}"
 git config --local user.email "${gerrit_user_email}"
 
 # Add webhook for Jenkins integration in cloned repo
-git fetch origin refs/meta/config:refs/remotes/origin/meta/config
-git checkout meta/config
+git fetch origin refs/meta/config
+git checkout FETCH_HEAD
 cp ../gerrit/webhooks.config .
 git add webhooks.config
 git commit -m "Add jenkins webhook"
-git push origin meta/config:meta/config
+git push origin HEAD:refs/meta/config
 
 cd ..
 

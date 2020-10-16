@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Test script') {
             steps {
-                sh './test_script.sh'
+                sh 'bash *.sh'
             }
         }
     }
