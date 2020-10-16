@@ -8,9 +8,6 @@ Quick recommendation, run docker-compose in separate terminal in order to see li
 
 ### **Order of scripts is important, please follow allong**
 
-### **NOTE**
-
-[setup_jenkins_user_on_host.sh](setup_jenkins_user_on_host.sh) will ask you for sudo permission since it needs to create jenkins user on host machine and grant him proper permissions. This is necessary to allow Jenkins spawning sibling containers (on host machine) in Pipelines so we are not playing around with dind (docker in docker).
 
 ```bash
 ./setup_docker_gid.sh
