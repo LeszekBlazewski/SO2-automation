@@ -1,0 +1,44 @@
+pipeline {
+    agent { dockerfile true }
+    stages {
+        stage('Syntax check') {
+            steps {
+                sh 'shellcheck *.sh'
+            }
+        }
+        stage('Prepare test environment') {
+            steps {
+                sh '''
+                dir_to_test='testing-dir'
+                mkdir "$dir_to_test"
+                mdkir "$dir_to_test"/aaa
+                touch "$dir_to_test"/kajak
+                touch "$dir_to_test"/aaa/bbb
+                '''
+            }
+        }
+        stage('Test script') {
+            steps {
+                sh '''
+                dir_to_test='testing-dir'
+                bash *.sh "$dir_to_test"
+                # test whether above command gives correct output and the file has correct values
+                '''
+            }
+        }
+    }
+     post {
+        success { 
+            gerritReview labels: [Verified: 1]
+            gerritCheck (checks: ['Jenkins:Test': 'SUCCESSFUL'],  url: "${env.BUILD_URL}console")
+        }
+        unstable { 
+            gerritReview labels: [Verified: 0] 
+            gerritCheck (checks: ['Jenkins:Test': 'FAILED'],  url: "${env.BUILD_URL}console")
+        }
+        failure { 
+            gerritReview labels: [Verified: -1]
+            gerritCheck (checks: ['Jenkins:Test': 'FAILED'],  url: "${env.BUILD_URL}console")
+        }
+    }
+}
