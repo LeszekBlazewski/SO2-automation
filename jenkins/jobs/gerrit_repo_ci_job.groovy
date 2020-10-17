@@ -12,21 +12,19 @@ multibranchPipelineJob('gerrit-jenkins-test-CI') {
                         changeDiscoveryTrait {
                             queryString('')
                         }
+                        headRegexFilter {
+                            regex(/\d+\/\d+\/\d+/) // regex to build only changes refs, example origin/01/1/1
+                        }
                         refSpecsSCMSourceTrait {
                             templates {
                                 refSpecTemplate {
-                                    value('+refs/changes/*:refs/remotes/@{remote}/*')
+                                    value('+refs/changes/*:refs/remotes/@{remote}/changes/*') // fetch only changes refs
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-    }
-    orphanedItemStrategy {
-        discardOldItems {
-            numToKeep(10)
         }
     }
 }
