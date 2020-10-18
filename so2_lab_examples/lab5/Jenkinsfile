@@ -20,9 +20,10 @@ pipeline {
         stage('Test script') {
             steps {
                 sh '''
+                source assert.sh
                 dir_to_test='testing-dir'
-                bash *.sh "$dir_to_test"
-                # test whether above command gives correct output and the file has correct values
+                stdout=$(bash *.sh "$dir_to_test")
+                assert_contain "$stdout" " $dir_to_test/kajak"
                 '''
             }
         }

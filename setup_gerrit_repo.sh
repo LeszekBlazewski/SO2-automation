@@ -149,5 +149,8 @@ cd ..
 # Post build configuration of Jenkins Jobs
 ./setup_jenkins_gerrit_jobs.sh
 
+# Setup example lab branches
+./setup_lab_branches.sh
+
 # Create sample change in gerrit repo for demo
 ./test_resources/create_gerrit_change.sh

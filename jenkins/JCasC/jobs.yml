@@ -4,13 +4,16 @@ jobs:
         scm {
           git {
             remote {
-              url "http://gerrit:8080/${GERRIT_PROJECT_NAME}"
+              url("http://gerrit:8080/${GERRIT_PROJECT_NAME}")
+              credentials('gerrit-jenkins-user')
             }
+            branches('master')
           }
         }
         steps {
           jobDsl {
-            targets 'jobs/**/*.groovy'
+            targets('jobs/**/*.groovy')
+            ignoreMissingFiles(true)
           }
         }
       }
