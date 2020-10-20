@@ -1,5 +1,9 @@
 pipeline {
-    agent { dockerfile true }
+    agent {
+        dockerfile{
+                filename('.Dockerfile')
+        }
+    }
     stages {
         stage('Syntax check') {
             steps {
@@ -9,11 +13,13 @@ pipeline {
         stage('Prepare test environment') {
             steps {
                 sh '''
-                dir_to_test='testing-dir'
-                mkdir "$dir_to_test"
-                mdkir "$dir_to_test"/aaa
-                touch "$dir_to_test"/kajak
-                touch "$dir_to_test"/aaa/bbb
+                cat << EOF > emails.txt
+                krasicki@wp.pl
+                naruszewicz@onet.eu
+                niemcewicz@o2.pl
+                trembecki@gmail.com
+                bohomolec@protonmail.com
+                EOF
                 '''
             }
         }
@@ -21,9 +27,12 @@ pipeline {
             steps {
                 sh '''
                 source assert.sh
-                dir_to_test='testing-dir'
-                stdout=$(bash *.sh "$dir_to_test")
-                assert_contain "$stdout" " $dir_to_test/kajak"
+                output=$(bash *.sh)
+                while IFS= read -r line
+                do
+                    email_from_file=$(grep -w "$line" <<< "$output")
+                    assert_eq "$email_from_file" "line"
+                done < emails.txt
                 '''
             }
         }
