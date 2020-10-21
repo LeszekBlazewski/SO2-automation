@@ -15,7 +15,7 @@ RUN apt-get -y update && \
     "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
     $(lsb_release -cs) \
     stable" && \
-    apt-get update && \
+    apt-get -y update && \
     apt-get -y install docker-ce docker-ce-cli containerd.io && \
     groupmod -g $HOST_GID docker && \
     usermod -aG docker jenkins

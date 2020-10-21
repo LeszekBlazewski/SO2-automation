@@ -24,7 +24,7 @@ pipeline {
         stage('Test script') {
             steps {
                 sh '''
-                source assert.sh
+                source /assert.sh
                 dir_to_test='testing-dir'
                 correct_file="$dir_to_test"/big-file-rw.txt
                 assert_not_empty $(bash *.sh "$dir_to_test" 2 | grep "$correct_file")
