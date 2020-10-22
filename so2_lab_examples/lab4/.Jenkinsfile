@@ -12,7 +12,7 @@ pipeline {
         }
         stage('Prepare test environment') {
             steps {
-                sh '''
+                sh '''#!/bin/bash -ex
                 dir_to_test='testing-dir'
                 mkdir "$dir_to_test"
                 truncate -s 5M "$dir_to_test"/big-file-rw.txt
@@ -23,7 +23,7 @@ pipeline {
         }
         stage('Test script') {
             steps {
-                sh '''
+                sh '''#!/bin/bash -ex
                 source /assert.sh
                 dir_to_test='testing-dir'
                 correct_file="$dir_to_test"/big-file-rw.txt

@@ -12,27 +12,26 @@ pipeline {
         }
         stage('Prepare test environment') {
             steps {
-                sh '''
+                sh '''#!/bin/bash -ex
                 cat << EOF > emails.txt
                 krasicki@wp.pl
                 naruszewicz@onet.eu
                 niemcewicz@o2.pl
                 trembecki@gmail.com
                 bohomolec@protonmail.com
-                EOF
+EOF
                 '''
             }
         }
         stage('Test script') {
             steps {
-                sh '''
-                source assert.sh
+                sh '''#!/bin/bash -ex
                 output=$(bash *.sh)
                 while IFS= read -r line
                 do
-                    email_from_file=$(grep -w "$line" <<< "$output")
-                    assert_eq "$email_from_file" "line"
+                    grep -qw  "$line" <<< "$output"
                 done < emails.txt
+                echo "All emails found successfully"
                 '''
             }
         }

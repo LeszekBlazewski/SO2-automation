@@ -12,10 +12,10 @@ pipeline {
         }
         stage('Prepare test environment') {
             steps {
-                sh '''
+                sh '''#!/bin/bash -ex
                 dir_to_test='testing-dir'
                 mkdir "$dir_to_test"
-                mdkir "$dir_to_test"/aaa
+                mkdir "$dir_to_test"/aaa
                 touch "$dir_to_test"/kajak
                 touch "$dir_to_test"/aaa/bbb
                 '''
@@ -23,11 +23,11 @@ pipeline {
         }
         stage('Test script') {
             steps {
-                sh '''
-                source assert.sh
+                sh '''#!/bin/bash -ex
+                source /assert.sh
                 dir_to_test='testing-dir'
                 stdout=$(bash *.sh "$dir_to_test")
-                assert_contain "$stdout" " $dir_to_test/kajak"
+                assert_contain "$stdout" "$dir_to_test/kajak"
                 '''
             }
         }
