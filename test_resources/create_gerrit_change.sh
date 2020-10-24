@@ -16,6 +16,8 @@ cd "$gerrit_project_name"
 # Propose sample change with JenkinsFile and script
 git checkout master
 cp ../test_resources/test_script.sh .
+cp ../test_resources/.Jenkinsfile .
+cp ../.Dockerfile .
 git add -A
 git commit -m "Add sample script"
 git push origin HEAD:refs/for/master

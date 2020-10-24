@@ -1,5 +1,9 @@
 pipeline {
-    agent { docker { image 'bash' } }
+    agent {
+        dockerfile{
+                filename('.Dockerfile')
+        }
+    }
     stages {
         stage('Test script') {
             steps {

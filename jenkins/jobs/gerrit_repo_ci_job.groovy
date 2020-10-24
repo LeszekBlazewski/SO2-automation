@@ -27,4 +27,9 @@ multibranchPipelineJob('gerrit-jenkins-test-CI') {
             }
         }
     }
+    factory {
+        workflowBranchProjectFactory {
+            scriptPath('.Jenkinsfile') // hidden jenkins file
+        }
+    }
 }

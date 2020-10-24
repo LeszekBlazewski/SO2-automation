@@ -76,7 +76,7 @@ curl --header "Content-Type: application/json" \
     --data '{"commit_message": "Create '"${label_name}"' label", '"${label_values}"'}' \
     "${gerrit_authorized_url}/projects/All-Projects/labels/${label_name}"
 
-# Create new students group and template
+# Create new students repo template
 ./setup_students_template.sh  "$gerrit_authorized_url" "$gerrit_username" "$gerrit_user_email" "$gerrit_template_repo_name"
 
 # Grant permissions for:
@@ -148,6 +148,9 @@ cd ..
 
 # Post build configuration of Jenkins Jobs
 ./setup_jenkins_gerrit_jobs.sh
+
+# Setup example lab branches
+./setup_lab_branches.sh
 
 # Create sample change in gerrit repo for demo
 ./test_resources/create_gerrit_change.sh

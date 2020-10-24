@@ -3,7 +3,7 @@ FROM jenkins/jenkins:lts
 ARG HOST_GID
 
 USER root
-RUN apt-get -y update && \
+RUN apt-get update && \
     apt-get -y install \
     apt-transport-https \
     ca-certificates \
@@ -22,4 +22,4 @@ RUN apt-get -y update && \
 
 USER jenkins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
