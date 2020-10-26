@@ -4,14 +4,11 @@ Beachlor thesis on Wrocław University of Science and Technology
 
 ## Run
 
-Quick recommendation, run docker-compose in separate terminal in order to see live logs and be sure when to acess gerrit :D
-
 ### **Order of scripts is important, please follow allong**
-
 
 ```bash
 ./setup_docker_gid.sh
-docker-compose up
+docker-compose up -d
 ./setup_gerrit_repo.sh -p gerrit-http-password
 ```
 

@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-# Creates students template repository to be used as parent project for other repositories in which students group should be enforced
-# Students have push access only to theirs set of branches under refs/heads/${username}/*. Also anonymous reads are prohibited in order to not pass the  permissions and see other users results.
+# Creates students template repository to be used as parent project for other repositories in which students group should be enforced. Also creates sample account for student with username student123
+# Students have push and read access only to theirs set of branches under refs/heads/${username}/*. Also anonymous reads are prohibited in order to not pass the  permissions and see other users results.
 # Following arguments must be supplied to script:
 # gerrit_authorized_url
 # gerrit_username
@@ -25,7 +25,16 @@ gerrit_username="$2"
 gerrit_user_email="$3"
 gerrit_template_repo_name="$4"
 config_files_location="gerrit/students-template-projects-config"
+student_username='student123'
 
+# Create sample student account in gerrit with username and password student123
+curl --header "Content-Type: application/json" \
+    --request PUT \
+    --silent \
+    --show-error \
+    --output /dev/null \
+    --data '{"name":"'"${student_username}"'", "email": "'"${student_username}@example.com"'", "http_password":"'"${student_username}"'"}' \
+    "${gerrit_authorized_url}/accounts/${student_username}"
 
 # Fetch Administrators uuid group
 administrators_group_uuid=$(curl --header "Content-Type: application/json" \

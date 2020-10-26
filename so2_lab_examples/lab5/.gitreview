@@ -2,4 +2,4 @@
 host=localhost
 port=29418
 project=gerrit_project_name
-defaultbranch=lab5
+defaultbranch=default_branch_name
