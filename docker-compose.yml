@@ -37,8 +37,32 @@ services:
       - "./jenkins/JCasC:${CASC_JENKINS_CONFIG:-/usr/share/jenkins/ref/JCasC}"
       - "/var/run/docker.sock:/var/run/docker.sock"
 
+  api:
+    build:
+      context: api
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: "${POSTGRES_DATABASE_NAME:-api}"
+
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: "${POSTGRES_DATABASE_NAME:-api}"
+    volumes:
+      - "postgres_data:/var/lib/postgresql/data"
+
 volumes:
   git-volume:
   index-volume:
   cache-volume:
   jenkins-volume:
+  postgres_data:

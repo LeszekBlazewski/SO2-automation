@@ -1,3 +1,5 @@
 gerrit-jenkins-test/
 Students-Template-Projects/
-api/src/__pycache__/
+api/api/__pycache__/
+api/alembic/__pycache__/
+api/alembic/versions/__pycache__/
