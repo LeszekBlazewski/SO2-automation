@@ -5,6 +5,11 @@ set -eu
 # Creates new gerrit repo with  webhook and checks for jenkins integration 
 # NOTE: Http generated password must be provided to script from gerrit portal
 
+if ! command -v jq &> /dev/null; then
+    echo "jq not found, please install the command and rerun the script."
+    exit 1
+fi
+
 source .env
 
 gerrit_username=${GERRIT_USERNAME:-admin}
@@ -49,62 +54,44 @@ gerrit_authorized_url=http://"${gerrit_username}:${encoded_gerrit_password}@${ge
 
 # Install checks plugin
 plugin_id="checks"
-plugin_source='"https://gerrit-ci.gerritforge.com/job/plugin-checks-bazel-stable-3.2/18//artifact/bazel-bin/plugins/checks/checks.jar"'
+plugin_source='"https://gerrit-ci.gerritforge.com/view/Plugins-stable-3.2/job/plugin-checks-bazel-stable-3.2/lastSuccessfulBuild/artifact/bazel-bin/plugins/checks/checks.jar"'
 curl --header "Content-Type: application/json" \
     --request PUT \
+    --fail \
     --silent \
     --show-error \
     --output /dev/null \
     --data '{"url":'"${plugin_source}"'}' \
     "${gerrit_authorized_url}/plugins/${plugin_id}.jar"
 
-# Add new label Verified
-# If you modify this you probably have to modify update_permission_rules_request.json also.
-label_name="Verified"
-label_values='"values": {
-    "-1": "Fails",
-    "0": "No score",
-    "+1": "Verified"
-    }
-'
-
-curl --header "Content-Type: application/json" \
-    --request POST \
-    --silent \
-    --show-error \
-    --output /dev/null \
-    --data '{"commit_message": "Create '"${label_name}"' label", '"${label_values}"'}' \
-    "${gerrit_authorized_url}/projects/All-Projects/labels/${label_name}"
-
-# Create new students repo template
-./setup_students_template.sh  "$gerrit_authorized_url" "$gerrit_username" "$gerrit_user_email" "$gerrit_template_repo_name"
-
-# Grant permissions for:
-# 1. Label Code-Review on refs/heads/* -> Non-interactive users
-# 2. READ refs/* -> Non-interactive users
-# 3. checks-administrateCheckers -> Administrators, Non-interactive users
-# 4. Label Verified on refs/heads/* ->  Administrators, Non-interactive users
+# Grant permissions for checks-administrateCheckers -> Administrators, Non-interactive users (used by admin to create checks and by jenkins to update status on gui)
 permission_request_file='./gerrit/update_permission_rules_request.json'
 curl --header "Content-Type: application/json" \
     --request POST \
+    --fail \
     --silent \
     --show-error \
     --output /dev/null \
     --data @"${permission_request_file}" \
     "${gerrit_authorized_url}/projects/All-Projects/access"
 
+# Create new students repo template
+./setup_students_template.sh  "$gerrit_authorized_url" "$gerrit_username" "$gerrit_user_email" "$gerrit_template_repo_name"
+
 # Create Jenkins user in gerrit
 curl --header "Content-Type: application/json" \
     --request PUT \
+    --fail \
     --silent \
     --show-error \
     --output /dev/null \
     --data '{"name":"JenkinsCI", "email": "jenkins@example.com", "groups":["Non-Interactive Users"], "http_password":"'"${jenkins_password}"'"}' \
     "${gerrit_authorized_url}/accounts/${jenkins_username}"
 
-# Create new gerrit repository
+# Create new sample gerrit repository
 curl --header "Content-Type: application/json" \
     --request PUT \
+    --fail \
     --silent \
     --show-error \
     --output /dev/null \
@@ -112,16 +99,25 @@ curl --header "Content-Type: application/json" \
     "${gerrit_authorized_url}/projects/${gerrit_project_name}"
 
 # Create new check for Jenkins job in ${gerrit_project_name} gerrit repo
-# Adjust variables in check request
-check_request_file='./gerrit/create_check_request.json'
-sed -i "s/gerrit_project_name/${gerrit_project_name}/" "$check_request_file"
+request_data=$(cat <<-END
+    {
+        "uuid": "Jenkins:Test", 
+        "name": "Jenkins Test", 
+        "description": "Test code on Jenkins Job", 
+        "repository": "$gerrit_project_name", 
+        "query": "", 
+        "blocking": []
+    }
+END
+)
 
 curl --header "Content-Type: application/json" \
     --request POST \
+    --fail \
     --silent \
     --show-error \
     --output /dev/null \
-    --data @"${check_request_file}" \
+    --data "$request_data" \
     "${gerrit_authorized_url}/plugins/checks/checkers/"
 
 # Clone new repo to host system with commit-msg hook

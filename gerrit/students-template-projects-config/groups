@@ -1,5 +1,5 @@
-# UUID												Group Name
-#
+# UUID								Group Name
 global:Anonymous-Users  			Anonymous Users
-global:Registered-Users  			   Registered Users
-administrators_group_uuid 			Administrators 
+global:Registered-Users  			Registered Users
+administrators_group_uuid 			Administrators
+non_interactive_group_uuid 			Non-Interactive Users

@@ -5,7 +5,8 @@ set -eu
 # Creates sample branches with tasks, Jenkins validation and .gitreview in students repo for lab{4,5,7} for student with username student123.
 
 if ! command -v rsync &> /dev/null; then
-    echo "rsync not found, please install the command and rerun the script"
+    echo "rsync not found, please install the command and rerun the script ${0}"
+    echo "Branches for students haven't been created."
     exit 1
 fi
 
