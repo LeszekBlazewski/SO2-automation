@@ -47,28 +47,6 @@ curl --header "Content-Type: application/json" \
     --data '{"description":"Template repository configured with special Registered users access group", "permissions_only": true, "parent": "", "create_empty_commit":false, "owners": ["Administrators"]}' \
     "${gerrit_authorized_url}/projects/${gerrit_template_repo_name}"
 
-# Add new label Verified in repository
-label_name="Verified"
-request_data=$(cat <<-END
-    {
-        "commit_message": "Create $label_name label",
-        "values": {
-            "-1": "Tests failed",
-            "0": "Unstable",
-            "+1": "Verified"
-        }
-    }
-END
-)
-
-curl --header "Content-Type: application/json" \
-    --request PUT \
-    --fail \
-    --silent \
-    --show-error \
-    --output /dev/null \
-    --data "$request_data" \
-    "${gerrit_authorized_url}/projects/${gerrit_template_repo_name}/labels/${label_name}"
 
 # Clone students template repository to host system with commit-msg hook
 rm -rf "$gerrit_template_repo_name"
