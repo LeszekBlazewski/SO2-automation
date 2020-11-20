@@ -43,6 +43,7 @@ jenkins_crumb=$(curl -s -u "${jenkins_username}:${jenkins_password}" \
 curl -X POST --header "$jenkins_crumb" \
     --user "${jenkins_username}:${jenkins_password}" \
     --cookie "$cookiejar" \
+    --fail \
     --silent \
     --show-error \
     --output /dev/null \
