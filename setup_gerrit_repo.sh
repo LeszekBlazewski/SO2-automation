@@ -89,13 +89,25 @@ curl --header "Content-Type: application/json" \
     "${gerrit_authorized_url}/accounts/${jenkins_username}"
 
 # Create new sample gerrit repository
+request_data=$(cat <<-END
+    {
+        "name": "$gerrit_project_name",
+        "description": "Sample project for Jenkins<->gerrit integration", 
+        "permissions_only": false, 
+        "parent": "$gerrit_template_repo_name", 
+        "create_empty_commit": true, 
+        "owners": ["Administrators"]
+    }
+END
+)
+
 curl --header "Content-Type: application/json" \
     --request PUT \
     --fail \
     --silent \
     --show-error \
     --output /dev/null \
-    --data '{"description":"Sample project for Jenkins<->gerrit integration", "permissions_only": false, "parent": "'"$gerrit_template_repo_name"'", "create_empty_commit": true, "owners": ["Administrators"]}' \
+    --data "$request_data" \
     "${gerrit_authorized_url}/projects/${gerrit_project_name}"
 
 # Create new check for Jenkins job in ${gerrit_project_name} gerrit repo
