@@ -15,11 +15,10 @@ cd "$gerrit_project_name"
 
 # Propose sample change with JenkinsFile and script
 git checkout master
-cp ../test_resources/test_script.sh .
-cp ../test_resources/.Jenkinsfile .
+cp -a ../so2_lab_examples/lab4/. .
 cp ../.Dockerfile .
 git add -A
-git commit -m "Add sample script"
+git commit -m "Add sample script and Jenkinsfile + Dockerfile for validation"
 git push origin HEAD:refs/for/master
 
 echo "Sucess ! Quickly check:"

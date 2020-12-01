@@ -161,4 +161,4 @@ cd ..
 ./setup_lab_branches.sh
 
 # Create sample change in gerrit repo for demo
-./test_resources/create_gerrit_change.sh
+./create_gerrit_change.sh
