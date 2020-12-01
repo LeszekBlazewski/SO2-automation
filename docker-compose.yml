@@ -13,6 +13,8 @@ services:
       - "git-volume:/var/gerrit/git"
       - "index-volume:/var/gerrit/index"
       - "cache-volume:/var/gerrit/cache"
+      - "etc-volume:/var/gerrit/etc"
+      - "db-volume:/var/gerrit/db"
 
   jenkins:
     build:
@@ -42,3 +44,5 @@ volumes:
   index-volume:
   cache-volume:
   jenkins-volume:
+  etc-volume:
+  db-volume:
