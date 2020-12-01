@@ -10,7 +10,7 @@ awk '
     //{
         while (match($0, email_regex)) 
         {
-            printf substr($0, RSTART, RLENGTH) OFS
+            print substr($0, RSTART, RLENGTH)
             $0=substr($0, RSTART+RLENGTH)
         }
     }

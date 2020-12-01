@@ -26,11 +26,12 @@ EOF
         stage('Test script') {
             steps {
                 sh '''#!/bin/bash -ex
-                output=$(bash *.sh)
-                while IFS= read -r line
+                found_emails=$(bash -euo pipefail *.sh)
+                while IFS= read -r email
                 do
-                    grep -qw  "$line" <<< "$output"
-                done < emails.txt
+                    grep -qw  "$email" emails.txt
+                done <<< "$found_emails"
+                
                 echo "All emails found successfully"
                 '''
             }
@@ -39,15 +40,18 @@ EOF
      post {
         success { 
             gerritReview labels: [Verified: 1]
-            gerritCheck (checks: ['Jenkins:Test': 'SUCCESSFUL'],  url: "${env.BUILD_URL}console")
+            gerritCheck (checks: ['Jenkins:Test': 'SUCCESSFUL'],  
+                        url: "${env.BUILD_URL}console")
         }
         unstable { 
             gerritReview labels: [Verified: 0] 
-            gerritCheck (checks: ['Jenkins:Test': 'FAILED'],  url: "${env.BUILD_URL}console")
+            gerritCheck (checks: ['Jenkins:Test': 'FAILED'],  
+                        url: "${env.BUILD_URL}console")
         }
         failure { 
             gerritReview labels: [Verified: -1]
-            gerritCheck (checks: ['Jenkins:Test': 'FAILED'],  url: "${env.BUILD_URL}console")
+            gerritCheck (checks: ['Jenkins:Test': 'FAILED'],  
+                        url: "${env.BUILD_URL}console")
         }
     }
 }

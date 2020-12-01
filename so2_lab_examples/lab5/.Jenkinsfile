@@ -14,10 +14,12 @@ pipeline {
             steps {
                 sh '''#!/bin/bash -ex
                 dir_to_test='testing-dir'
-                mkdir "$dir_to_test"
-                mkdir "$dir_to_test"/aaa
-                touch "$dir_to_test"/kajak
-                touch "$dir_to_test"/aaa/bbb
+                palindrome="kajak"
+                palindrome_path="$dir_to_test/$palindrome"
+                nested_palindrome_path="$dir_to_test/nested/$palindrome"
+                mkdir "$dir_to_test" "$dir_to_test/nested"
+                touch "$palindrome_path" "$nested_palindrome_path"
+                touch "$dir_to_test"/not-palindrome
                 '''
             }
         }
@@ -26,8 +28,23 @@ pipeline {
                 sh '''#!/bin/bash -ex
                 source /assert.sh
                 dir_to_test='testing-dir'
-                stdout=$(bash *.sh "$dir_to_test")
-                assert_contain "$stdout" "$dir_to_test/kajak"
+                palindrome="kajak"
+                palindrome_path="$dir_to_test/$palindrome"
+                nested_palindrome_path="$dir_to_test/nested/$palindrome"
+                correct_files="$palindrome_path $nested_palindrome_path"
+                found_files=$(bash -euo pipefail *.sh "$dir_to_test")
+
+                # verify stdout
+                while IFS= read -r path
+                do
+                    assert_contain "$correct_files" "$path" "wrong path in stodout found"
+                done <<< "$found_files" 
+
+                # verify contents of file
+                while IFS= read -r path
+                do
+                    assert_contain "$correct_files" "$path" "wrong path in file found"
+                done < *.txt
                 '''
             }
         }
