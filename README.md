@@ -26,15 +26,9 @@ Also clone the repo locally and push some changes to gerrit to check whether jen
 
 During playtime be sure to also clear docker volumes since compose uses them (to make sure you have a fresh install each time you spin up the containers)
 
-## TO DO
-
-1. Check if changed files are displayed correctly when Jenkins does not post comments on file which is not included in given changeset (remove post on test.sh)
-
-2. Check if filterring on closed/merged patchsets is done correctly (YT video filter addon)
-
 ### Ideas
 
-- Add reverse proxy in front of the containers to easily access given services on user friendly URLS. (caddy could be nice if letsencrypt docker image (SWAG) will not work correctly for localhost)
+- Add reverse proxy in front of the containers to easily access given services on user friendly URLS. (caddy could be nice if letsencrypt docker image (SWAG) will not work correctly for localhost) -> just use [SWAG](https://hub.docker.com/r/linuxserver/swag) with autocertbot. 
 
 - Configure Cloud section in JCasC to use docker containers as slaves (also provisioned by jenkins when needed)
 
