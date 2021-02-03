@@ -1,6 +1,6 @@
 # SO2-automation
 
-Bachlor thesis on Wrocław University of Science and Technology
+Bachlor's thesis on Wrocław University of Science and Technology
 
 ## Run
 
