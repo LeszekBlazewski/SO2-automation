@@ -75,7 +75,7 @@ The [setup script](setup_gerrit_repo.sh) does the following:
 
 # RESOURCES:
 
-https://www.youtube.com/watch?v=pyPMeCW-Q5k -> How [GerritForge](https://gerrit-ci.gerritforge.com/) runs things (tbh this presentation is just the top of the mountain and the plugin does not has a documentation at all)
+https://www.youtube.com/watch?v=pyPMeCW-Q5k -> How [GerritForge](https://gerrit-ci.gerritforge.com/) runs things (tbh this presentation is just the top of the mountain and the plugin does not have a documentation at all)
 
 [Gerrit source code](https://gerrit-review.googlesource.com/) -> Yeah it has been handy when configuring all the stuff :D
 
